@@ -11,9 +11,9 @@ mongo = PyMongo(app)
 
 # defining the route for the HTML page
 @app.route("/")
-def index():
-    mars = mongo.db.mars.find_one()
-    return render_template("index.html", mars=mars)
+def index():   
+   mars = mongo.db.mars.find_one()
+   return render_template("index.html", mars=mars)
 
 # setting up scraping route. the 'button' of the web app
 @app.route("/scrape")
@@ -25,4 +25,4 @@ def scrape():
 
 # running Flask
 if __name__ == "__main__":
-   app.run()
+   app.run(debug=True)
