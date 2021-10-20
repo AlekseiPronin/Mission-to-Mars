@@ -12,12 +12,14 @@ def scrape_all():
     browser = Browser('chrome', **executable_path, headless=True)
 
     news_title, news_paragraph = mars_news(browser)
+    hemisphere_image_urls = hemisphere(browser)
 
     # Run all scraping functions and store results in a dictionary
     data = {
         "news_title": news_title,
         "news_paragraph": news_paragraph,
         "featured_image": featured_image(browser),
+        'hemispheres': hemisphere_image_urls,
         "facts": mars_facts(),
         "last_modified": dt.datetime.now()
     }
@@ -47,12 +49,12 @@ def mars_news(browser):
         # Use the parent element to find the first 'a' tag and save it as 'news_title'
         news_title = slide_elem.find('div', class_='content_title').get_text()
         # Use the parent element to find the paragraph text
-        news_p = slide_elem.find('div', class_='article_teaser_body').get_text()
+        news_paragraph = slide_elem.find('div', class_='article_teaser_body').get_text()
 
     except AttributeError:
         return None, None
 
-    return news_title, news_p
+    return news_title, news_paragraph
 
 
 def featured_image(browser):
@@ -96,6 +98,33 @@ def mars_facts():
 
     # Convert dataframe into HTML format, add bootstrap
     return df.to_html(classes="table table-striped")
+
+def hemisphere(browser):
+    #Use browser to visit the URL
+    url = 'https://marshemispheres.com/'
+    browser.visit(url)
+
+    # 2. Create a list to hold the images and titles.
+    hemisphere_image_urls = []
+
+    for i in range(4):
+        # create empty dictionary
+        hemispheres = {}
+        #clicking the link on the 1st page
+        browser.find_by_css('h3')[i].click()
+        #retrieving the image url
+        element = browser.find_link_by_text('Sample').first
+        img_url = element['href']
+        #retrieving the title
+        title = browser.find_by_css('h2.title').first.text
+        #assigning values to keys and adding url and title into dictionary
+        hemispheres['img_url'] = img_url
+        hemispheres['title'] = title
+        hemisphere_image_urls.append(hemispheres)
+        #going back one page
+        browser.back()
+    
+    return hemisphere_image_urls
 
 if __name__ == "__main__":
 
